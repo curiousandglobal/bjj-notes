@@ -15,11 +15,6 @@
     min-height: 100dvh;
     padding: 1.5rem;
     padding: env(safe-area-inset-top, 1.5rem) env(safe-area-inset-right, 1.5rem) env(safe-area-inset-bottom, 1.5rem) env(safe-area-inset-left, 1.5rem);
-    transition: background 0.4s;
-  }
-
-  body.recording-active {
-    background: #1a0a0a;
   }
 
   .container {
@@ -77,19 +72,12 @@
 
   .record-btn.recording {
     background: #e74c3c;
-    box-shadow: 0 0 0 12px rgba(231, 76, 60, 0.15);
-    animation: pulse-ring 1.6s ease-out infinite;
   }
 
   .record-btn.recording svg {
     width: 28px;
     height: 28px;
     border-radius: 4px;
-  }
-
-  @keyframes pulse-ring {
-    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.3); }
-    100% { box-shadow: 0 0 0 20px rgba(231, 76, 60, 0); }
   }
 
   .record-label {
@@ -103,30 +91,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* ── Live transcript ── */
-  .live-text {
-    padding: 1rem 1.2rem;
-    background: #1a1a1a;
-    border-radius: 10px;
-    border-left: 3px solid #e74c3c;
-    min-height: 3rem;
-    font-style: italic;
-    color: #999;
-    display: none;
-    line-height: 1.6;
-    font-size: 0.95rem;
-    max-height: 40vh;
-    overflow-y: auto;
-  }
-
-  .live-text.active { display: block; }
-
-  /* ── Divider ── */
-  .divider {
-    border: none;
-    border-top: 1px solid #222;
-    margin: 0.5rem 0 1.5rem;
-  }
 
   /* ── Notes list ── */
   .notes-header {
@@ -215,10 +179,6 @@
   <span class="record-label" id="recordLabel">Tap to record</span>
 </div>
 
-<div class="live-text" id="liveText"></div>
-
-<hr class="divider">
-
 <div id="notesSection">
   <div class="notes-header" id="notesHeader"></div>
   <div class="notes-list" id="notesList"></div>
@@ -244,7 +204,6 @@
   const recordLabel = document.getElementById('recordLabel');
   const micIcon = document.getElementById('micIcon');
   const stopIcon = document.getElementById('stopIcon');
-  const liveText = document.getElementById('liveText');
   const notesList = document.getElementById('notesList');
   const notesHeader = document.getElementById('notesHeader');
 
@@ -316,10 +275,6 @@
     timerInterval = setInterval(() => {
       recordLabel.textContent = formatTimer(Date.now() - recordingStart);
     }, 1000);
-    document.body.classList.add('recording-active');
-    liveText.classList.add('active');
-    liveText.textContent = 'Listening...';
-
     recognition.onresult = (event) => {
       let interim = '';
       fullTranscript = '';
@@ -331,7 +286,6 @@
           interim += result[0].transcript;
         }
       }
-      liveText.textContent = fullTranscript + interim || 'Listening...';
     };
 
     recognition.onerror = (event) => {
@@ -358,7 +312,6 @@
     stopIcon.style.display = 'none';
     recordLabel.classList.remove('active');
     recordLabel.textContent = 'Tap to record';
-    document.body.classList.remove('recording-active');
 
     const text = fullTranscript.trim();
     if (text) {
@@ -367,9 +320,6 @@
       saveNotes(notes);
       renderNotes();
     }
-
-    liveText.classList.remove('active');
-    liveText.textContent = '';
   }
 
   recordBtn.addEventListener('click', () => {
