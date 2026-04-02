@@ -197,6 +197,7 @@
   let recognition;
   let isRecording = false;
   let fullTranscript = '';
+  let savedTranscript = '';
   let timerInterval;
   let recordingStart;
 
@@ -265,6 +266,7 @@
     recognition.lang = 'en-US';
 
     fullTranscript = '';
+    savedTranscript = '';
     isRecording = true;
     recordingStart = Date.now();
     recordBtn.classList.add('recording');
@@ -276,16 +278,14 @@
       recordLabel.textContent = formatTimer(Date.now() - recordingStart);
     }, 1000);
     recognition.onresult = (event) => {
-      let interim = '';
-      fullTranscript = '';
+      let sessionTranscript = '';
       for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          fullTranscript += result[0].transcript + ' ';
-        } else {
-          interim += result[0].transcript;
+          sessionTranscript += result[0].transcript + ' ';
         }
       }
+      fullTranscript = savedTranscript + sessionTranscript;
     };
 
     recognition.onerror = (event) => {
@@ -296,6 +296,7 @@
     // Auto-restart if the browser stops listening (happens after ~60s of silence)
     recognition.onend = () => {
       if (isRecording) {
+        savedTranscript = fullTranscript;
         recognition.start();
       }
     };
